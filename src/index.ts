@@ -4,7 +4,6 @@ export type {
   ChannelName,
   IncomingEvent,
   IncomingEventType,
-  OutgoingMessage,
   BotAdapter,
   TelegramAdapter,
   HttpWebhook,
@@ -13,3 +12,6 @@ export type {
   DiscordConfig,
 } from "./core/types"
 export { Context } from "./core/context"
+export type { Message } from "./core/message/types"
+export type { Content, TextContent, ImageContent } from "./core/content/types"
+export type { ButtonComponent, MessageComponent } from "./core/components/types"

@@ -2,11 +2,10 @@ import type {
   TelegramConfig,
   TelegramAdapter,
   CoreEventHandler,
-  OutgoingMessage,
 } from "core/types"
+import type { Message } from "core/message/types"
 import { mapTelegramUpdateToEvent } from "./mapping"
 import { TelegramMessageRenderer } from "./renderer"
-import { convertOutgoingMessageToMessage } from "core/message/converter"
 
 const TELEGRAM_API_BASE = "https://api.telegram.org/bot"
 
@@ -35,7 +34,7 @@ export function createTelegramAdapter(config: TelegramConfig): TelegramAdapter {
       },
     },
     async send(
-      msg: OutgoingMessage,
+      msg: Message,
       meta: {
         channel: "telegram"
         externalUserId: string
@@ -43,12 +42,9 @@ export function createTelegramAdapter(config: TelegramConfig): TelegramAdapter {
       }
     ): Promise<void> {
       const chatId = meta.externalChatId || meta.externalUserId
-
-      // Convert legacy OutgoingMessage to Message format
-      const message = convertOutgoingMessageToMessage(msg)
-
+      
       // Render message using renderer
-      const rendered = renderer.render(message)
+      const rendered = renderer.render(msg)
 
       // Determine which Telegram API endpoint to use
       if (rendered.photo) {

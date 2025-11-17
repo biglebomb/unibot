@@ -1,4 +1,5 @@
-import type { IncomingEvent, OutgoingMessage, BotAdapter } from "./types"
+import type { IncomingEvent, BotAdapter } from "./types"
+import type { Message } from "./message/types"
 
 export class Context {
   constructor(
@@ -26,7 +27,7 @@ export class Context {
     return this.event.raw
   }
 
-  async reply(msg: OutgoingMessage): Promise<void> {
+  async reply(msg: Message): Promise<void> {
     await this.adapter.send(msg, {
       channel: this.event.channel,
       externalUserId: this.event.externalUserId,

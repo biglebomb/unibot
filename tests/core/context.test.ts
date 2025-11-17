@@ -1,10 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { Context } from "core/context"
-import type {
-  IncomingEvent,
-  BotAdapter,
-  OutgoingMessage,
-} from "core/types"
+import type { IncomingEvent, BotAdapter } from "core/types"
+import type { Message } from "core/message/types"
 
 describe("Context", () => {
   it("should create context with event and adapter", () => {
@@ -48,7 +45,9 @@ describe("Context", () => {
     }
 
     const ctx = new Context(event, adapter)
-    const message: OutgoingMessage = { type: "text", text: "Hi there!" }
+    const message: Message = {
+      content: { type: "text", text: "Hi there!" },
+    }
 
     await ctx.reply(message)
 

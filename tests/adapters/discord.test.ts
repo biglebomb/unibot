@@ -153,7 +153,7 @@ describe("Discord Adapter", () => {
       // Note: This is a simplified test - in real implementation,
       // we'd need to expose the client or use a factory pattern
       await adapter.send(
-        { type: "text", text: "Hello" },
+        { content: { type: "text", text: "Hello" } },
         {
           channel: "discord",
           externalUserId: "user123",

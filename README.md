@@ -35,7 +35,9 @@ const bot = new Bot({
 
 // Register message handler
 bot.on("message", async (ctx) => {
-  await ctx.reply({ type: "text", text: `Hello from ${ctx.channel}!` });
+  await ctx.reply({
+    content: { type: "text", text: `Hello from ${ctx.channel}!` },
+  });
 });
 
 // Start adapters (Telegram: no-op except attachCore, Discord: opens gateway WS)
@@ -78,21 +80,69 @@ The context object passed to event handlers provides:
 - `chatId: string | undefined` - External chat/channel ID
 - `text: string | undefined` - Message text (if applicable)
 - `raw: unknown` - Raw event data from the adapter
-- `reply(msg: OutgoingMessage): Promise<void>` - Reply to the message
+- `reply(msg: Message): Promise<void>` - Reply to the message
 
 ### Message Types
 
-#### OutgoingMessage
+#### Message
+
+The new message format separates content from interactive components:
 
 ```typescript
-type OutgoingMessage =
-  | { type: "text"; text: string }
-  | { type: "image"; url: string; caption?: string }
-  | {
-      type: "buttons";
-      text: string;
-      buttons: { id: string; label: string }[];
-    };
+interface Message {
+  content?: Content; // Optional (some channels allow components without content)
+  components?: MessageComponent[]; // Array of components (buttons, selects, etc.)
+}
+
+type Content = TextContent | ImageContent;
+
+interface TextContent {
+  type: "text";
+  text: string;
+}
+
+interface ImageContent {
+  type: "image";
+  url: string;
+  caption?: string;
+}
+
+interface ButtonComponent {
+  type: "button";
+  id: string;
+  label: string;
+  style?: "primary" | "secondary" | "success" | "danger" | "link";
+  url?: string; // For link buttons
+}
+
+type MessageComponent = ButtonComponent;
+```
+
+**Example usage:**
+
+```typescript
+// Text message
+await ctx.reply({
+  content: { type: "text", text: "Hello!" },
+});
+
+// Image with caption
+await ctx.reply({
+  content: {
+    type: "image",
+    url: "https://example.com/image.jpg",
+    caption: "Check this out!",
+  },
+});
+
+// Text with buttons
+await ctx.reply({
+  content: { type: "text", text: "Choose an option:" },
+  components: [
+    { type: "button", id: "opt1", label: "Option 1" },
+    { type: "button", id: "opt2", label: "Option 2" },
+  ],
+});
 ```
 
 #### IncomingEvent
@@ -165,10 +215,11 @@ See the [basic-bot example](./examples/basic-bot/) for a complete integration wi
 
 ## Roadmap (v1)
 
-- [ ] Full button support (inline keyboards for Telegram, components for Discord)
+- [x] Full button support (inline keyboards for Telegram, components for Discord)
+- [x] Message architecture with content/component abstraction
+- [x] More event types (reactions, joins)
 - [ ] State management/store
 - [ ] Message persistence
-- [ ] More event types (reactions, joins, etc.)
 - [ ] Additional channels (Slack, WhatsApp, etc.)
 
 ## License

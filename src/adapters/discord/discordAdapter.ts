@@ -1,7 +1,7 @@
 import {
   Client,
   GatewayIntentBits,
-  type Message,
+  type Message as DiscordMessage,
   type TextChannel,
   type Interaction,
   type MessageReaction,
@@ -11,8 +11,8 @@ import type {
   DiscordConfig,
   BotAdapter,
   CoreEventHandler,
-  OutgoingMessage,
 } from "core/types"
+import type { Message } from "core/message/types"
 import {
   mapDiscordMessageToEvent,
   mapDiscordInteractionToEvent,
@@ -20,7 +20,6 @@ import {
   mapDiscordJoinToEvent,
 } from "./mapping"
 import { DiscordMessageRenderer } from "./renderer"
-import { convertOutgoingMessageToMessage } from "core/message/converter"
 
 export function createDiscordAdapter(config: DiscordConfig): BotAdapter {
   let coreHandler: CoreEventHandler | undefined
@@ -36,7 +35,7 @@ export function createDiscordAdapter(config: DiscordConfig): BotAdapter {
   })
 
   // Set up message handler
-  client.on("messageCreate", async (message: Message) => {
+  client.on("messageCreate", async (message: DiscordMessage) => {
     if (!coreHandler) {
       return
     }
@@ -105,7 +104,7 @@ export function createDiscordAdapter(config: DiscordConfig): BotAdapter {
       await client.login(config.token)
     },
     async send(
-      msg: OutgoingMessage,
+      msg: Message,
       meta: {
         channel: "discord"
         externalUserId: string
@@ -121,11 +120,8 @@ export function createDiscordAdapter(config: DiscordConfig): BotAdapter {
         throw new Error(`Channel ${channelId} not found or not a text channel`)
       }
 
-      // Convert legacy OutgoingMessage to Message format
-      const message = convertOutgoingMessageToMessage(msg)
-
       // Render message using renderer
-      const rendered = renderer.render(message)
+      const rendered = renderer.render(msg)
 
       // Send rendered message to Discord
       await channel.send(rendered)

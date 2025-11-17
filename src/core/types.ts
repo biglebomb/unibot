@@ -1,3 +1,5 @@
+import type { Message } from "core/message/types"
+
 export type ChannelName = "telegram" | "discord"
 
 export type IncomingEventType = "message" | "button_click" | "reaction" | "join"
@@ -14,15 +16,6 @@ export interface IncomingEvent {
   raw: unknown
 }
 
-export type OutgoingMessage =
-  | { type: "text"; text: string }
-  | { type: "image"; url: string; caption?: string }
-  | {
-      type: "buttons"
-      text: string
-      buttons: { id: string; label: string }[]
-    }
-
 export type CoreEventHandler = (event: IncomingEvent) => Promise<void>
 
 export interface BotAdapter {
@@ -30,7 +23,7 @@ export interface BotAdapter {
   attachCore(handler: CoreEventHandler): void
   start?(): Promise<void>
   send(
-    msg: OutgoingMessage,
+    msg: Message,
     meta: {
       channel: ChannelName
       externalUserId: string

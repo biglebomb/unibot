@@ -186,7 +186,7 @@ describe("Telegram Adapter", () => {
       })
 
       await adapter.send(
-        { type: "text", text: "Hello" },
+        { content: { type: "text", text: "Hello" } },
         {
           channel: "telegram",
           externalUserId: "123",
@@ -211,12 +211,11 @@ describe("Telegram Adapter", () => {
 
       await adapter.send(
         {
-          type: "buttons",
-          text: "Choose an option",
-          buttons: [
-            { id: "btn1", label: "Option 1" },
-            { id: "btn2", label: "Option 2" },
-            { id: "btn3", label: "Option 3" },
+          content: { type: "text", text: "Choose an option" },
+          components: [
+            { type: "button", id: "btn1", label: "Option 1" },
+            { type: "button", id: "btn2", label: "Option 2" },
+            { type: "button", id: "btn3", label: "Option 3" },
           ],
         },
         {

@@ -18,7 +18,9 @@ const bot = new Bot({
 // Register message handler
 bot.on("message", async (ctx) => {
   // Reply "hi" from both channels
-  await ctx.reply({ type: "text", text: `Hello from ${ctx.channel}!` })
+  await ctx.reply({
+    content: { type: "text", text: `Hello from ${ctx.channel}!` },
+  })
 })
 
 // Start adapters (Discord: opens gateway WS)
