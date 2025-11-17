@@ -6,7 +6,7 @@ This example demonstrates how to use unibot with both Telegram and Discord chann
 
 1. Install dependencies:
    ```bash
-   pnpm install
+   bun install
    ```
 
 2. Set up environment variables:
@@ -17,7 +17,7 @@ This example demonstrates how to use unibot with both Telegram and Discord chann
 
 3. Run the server:
    ```bash
-   pnpm dev
+   bun run dev
    ```
 
 ## Telegram Setup

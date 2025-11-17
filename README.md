@@ -15,7 +15,7 @@ TypeScript-first SDK for building multi-channel chatbots. Build bots for Telegra
 ## Installation
 
 ```bash
-pnpm add unibot
+bun add unibot
 ```
 
 ## Quick Start
@@ -128,22 +128,22 @@ interface IncomingEvent {
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Build
-pnpm build
+bun run build
 
 # Watch mode
-pnpm dev
+bun run dev
 
 # Run tests
-pnpm test
+bun test
 
 # Lint
-pnpm lint
+bun run lint
 
 # Format
-pnpm format
+bun run format
 ```
 
 ### Project Structure

@@ -1,22 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Bot } from "../../src/core/bot.js";
-import type {
-  BotAdapter,
-  IncomingEvent,
-  OutgoingMessage,
-} from "../../src/core/types.js";
+
+// Mock discord.js to prevent real connections when Discord adapter is created
+vi.mock("discord.js", () => {
+  const mockClient = {
+    on: vi.fn(),
+    login: vi.fn().mockResolvedValue(undefined),
+    channels: {
+      fetch: vi.fn(),
+    },
+  };
+
+  return {
+    Client: vi.fn(() => mockClient),
+    GatewayIntentBits: {
+      Guilds: 1,
+      GuildMessages: 2,
+      MessageContent: 3,
+    },
+  };
+});
 
 describe("Bot", () => {
-  let mockAdapter: BotAdapter;
-  let mockSend: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
-    mockSend = vi.fn();
-    mockAdapter = {
-      name: "telegram",
-      attachCore: vi.fn(),
-      send: mockSend,
-    };
+    vi.clearAllMocks();
   });
 
   it("should create bot with config", () => {
@@ -79,22 +86,17 @@ describe("Bot", () => {
   });
 
   it("should call start on adapters that support it", async () => {
-    const mockStart = vi.fn().mockResolvedValue(undefined);
-    const adapterWithStart: BotAdapter = {
-      ...mockAdapter,
-      start: mockStart,
-    };
-
-    // Note: In real implementation, Discord adapter has start()
-    // This test verifies the pattern
     const bot = new Bot({
       discord: { token: "test-token" },
     });
 
+    const discordAdapter = bot.requireDiscord();
+    const startSpy = vi.spyOn(discordAdapter, "start").mockResolvedValue(undefined);
+
     await bot.start();
-    // Discord adapter's start() should be called internally
-    // We can't directly verify this without exposing internals,
-    // but we can verify start() doesn't throw
+    
+    // Verify that start() was called on the Discord adapter
+    expect(startSpy).toHaveBeenCalledOnce();
   });
 });
 

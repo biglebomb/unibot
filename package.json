@@ -33,7 +33,10 @@
   ],
   "author": "",
   "license": "MIT",
-  "packageManager": "pnpm@8.0.0",
+  "packageManager": "bun@1.0.0",
+  "workspaces": [
+    "examples/*"
+  ],
   "dependencies": {
     "discord.js": "^14.14.1"
   },
