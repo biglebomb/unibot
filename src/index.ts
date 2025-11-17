@@ -1,5 +1,5 @@
 // Core exports
-export { Bot } from "./core/bot.js";
+export { Bot } from "./core/bot"
 export type {
   ChannelName,
   IncomingEvent,
@@ -11,6 +11,5 @@ export type {
   BotConfig,
   TelegramConfig,
   DiscordConfig,
-} from "./core/types.js";
-export { Context } from "./core/context.js";
-
+} from "./core/types"
+export { Context } from "./core/context"

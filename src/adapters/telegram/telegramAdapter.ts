@@ -3,55 +3,53 @@ import type {
   TelegramAdapter,
   CoreEventHandler,
   OutgoingMessage,
-} from "../../core/types.js";
-import { mapTelegramUpdateToEvent } from "./mapping.js";
-import { TelegramMessageRenderer } from "./renderer.js";
-import { convertOutgoingMessageToMessage } from "../../core/message/converter.js";
+} from "core/types"
+import { mapTelegramUpdateToEvent } from "./mapping"
+import { TelegramMessageRenderer } from "./renderer"
+import { convertOutgoingMessageToMessage } from "core/message/converter"
 
-const TELEGRAM_API_BASE = "https://api.telegram.org/bot";
+const TELEGRAM_API_BASE = "https://api.telegram.org/bot"
 
-export function createTelegramAdapter(
-  config: TelegramConfig
-): TelegramAdapter {
-  let coreHandler: CoreEventHandler | undefined;
-  const webhookPath = config.webhookPath || "/webhook/telegram";
-  const renderer = new TelegramMessageRenderer();
+export function createTelegramAdapter(config: TelegramConfig): TelegramAdapter {
+  let coreHandler: CoreEventHandler | undefined
+  const webhookPath = config.webhookPath || "/webhook/telegram"
+  const renderer = new TelegramMessageRenderer()
 
   const adapter: TelegramAdapter = {
     name: "telegram",
     kind: "http-webhook",
     attachCore(handler: CoreEventHandler): void {
-      coreHandler = handler;
+      coreHandler = handler
     },
     webhook: {
       path: webhookPath,
       handler: async (body: any, _headers: Record<string, string>) => {
         if (!coreHandler) {
-          throw new Error("Core handler not attached to Telegram adapter");
+          throw new Error("Core handler not attached to Telegram adapter")
         }
 
-        const event = mapTelegramUpdateToEvent(body);
+        const event = mapTelegramUpdateToEvent(body)
         if (event) {
-          await coreHandler(event);
+          await coreHandler(event)
         }
       },
     },
     async send(
       msg: OutgoingMessage,
       meta: {
-        channel: "telegram";
-        externalUserId: string;
-        externalChatId?: string;
+        channel: "telegram"
+        externalUserId: string
+        externalChatId?: string
       }
     ): Promise<void> {
-      const chatId = meta.externalChatId || meta.externalUserId;
-      
+      const chatId = meta.externalChatId || meta.externalUserId
+
       // Convert legacy OutgoingMessage to Message format
-      const message = convertOutgoingMessageToMessage(msg);
-      
+      const message = convertOutgoingMessageToMessage(msg)
+
       // Render message using renderer
-      const rendered = renderer.render(message);
-      
+      const rendered = renderer.render(message)
+
       // Determine which Telegram API endpoint to use
       if (rendered.photo) {
         // Image with optional caption
@@ -60,7 +58,7 @@ export function createTelegramAdapter(
           chatId,
           rendered.photo,
           rendered.caption
-        );
+        )
       } else {
         // Text message with optional buttons
         await sendTelegramMessage(
@@ -68,45 +66,49 @@ export function createTelegramAdapter(
           chatId,
           rendered.text || "",
           rendered.reply_markup
-        );
+        )
       }
     },
-  };
+  }
 
-  return adapter;
+  return adapter
 }
 
 async function sendTelegramMessage(
   botToken: string,
   chatId: string,
   text: string,
-  replyMarkup?: { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> }
+  replyMarkup?: {
+    inline_keyboard: Array<Array<{ text: string; callback_data: string }>>
+  }
 ): Promise<void> {
-  const url = `${TELEGRAM_API_BASE}${botToken}/sendMessage`;
+  const url = `${TELEGRAM_API_BASE}${botToken}/sendMessage`
   const body: {
-    chat_id: string;
-    text: string;
-    reply_markup?: { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> };
+    chat_id: string
+    text: string
+    reply_markup?: {
+      inline_keyboard: Array<Array<{ text: string; callback_data: string }>>
+    }
   } = {
     chat_id: chatId,
     text: text,
-  };
-  
-  if (replyMarkup) {
-    body.reply_markup = replyMarkup;
   }
-  
+
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup
+  }
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
-  });
+  })
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Telegram API error: ${error}`);
+    const error = await response.text()
+    throw new Error(`Telegram API error: ${error}`)
   }
 }
 
@@ -116,7 +118,7 @@ async function sendTelegramPhoto(
   photoUrl: string,
   caption?: string
 ): Promise<void> {
-  const url = `${TELEGRAM_API_BASE}${botToken}/sendPhoto`;
+  const url = `${TELEGRAM_API_BASE}${botToken}/sendPhoto`
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -127,12 +129,10 @@ async function sendTelegramPhoto(
       photo: photoUrl,
       caption: caption,
     }),
-  });
+  })
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Telegram API error: ${error}`);
+    const error = await response.text()
+    throw new Error(`Telegram API error: ${error}`)
   }
 }
-
-

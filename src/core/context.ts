@@ -1,4 +1,4 @@
-import type { IncomingEvent, OutgoingMessage, BotAdapter } from "./types.js";
+import type { IncomingEvent, OutgoingMessage, BotAdapter } from "./types"
 
 export class Context {
   constructor(
@@ -7,23 +7,23 @@ export class Context {
   ) {}
 
   get channel(): IncomingEvent["channel"] {
-    return this.event.channel;
+    return this.event.channel
   }
 
   get userId(): string {
-    return this.event.externalUserId;
+    return this.event.externalUserId
   }
 
   get chatId(): string | undefined {
-    return this.event.externalChatId;
+    return this.event.externalChatId
   }
 
   get text(): string | undefined {
-    return this.event.text;
+    return this.event.text
   }
 
   get raw(): unknown {
-    return this.event.raw;
+    return this.event.raw
   }
 
   async reply(msg: OutgoingMessage): Promise<void> {
@@ -31,7 +31,6 @@ export class Context {
       channel: this.event.channel,
       externalUserId: this.event.externalUserId,
       externalChatId: this.event.externalChatId,
-    });
+    })
   }
 }
-

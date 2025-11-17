@@ -8,5 +8,10 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: "dist",
+  esbuildOptions(options) {
+    options.alias = {
+      core: "./src/core",
+    };
+  },
 });
 

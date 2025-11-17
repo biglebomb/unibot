@@ -1,6 +1,5 @@
-import type { ButtonComponent } from "./button.js";
+import type { ButtonComponent } from "./button"
 
 // Union type for all component types
 // Future: SelectComponent, etc.
-export type MessageComponent = ButtonComponent;
-
+export type MessageComponent = ButtonComponent

@@ -1,18 +1,18 @@
-import type { IncomingEvent } from "../../core/types.js";
+import type { IncomingEvent } from "core/types"
 import type {
   Message,
   Interaction,
   ButtonInteraction,
   MessageReaction,
   GuildMember,
-} from "discord.js";
+} from "discord.js"
 
 export function mapDiscordMessageToEvent(
   message: Message
 ): IncomingEvent | null {
   // Skip bot messages
   if (message.author.bot) {
-    return null;
+    return null
   }
 
   return {
@@ -22,7 +22,7 @@ export function mapDiscordMessageToEvent(
     externalChatId: message.channel.id,
     text: message.content,
     raw: message,
-  };
+  }
 }
 
 export function mapDiscordInteractionToEvent(
@@ -30,10 +30,10 @@ export function mapDiscordInteractionToEvent(
 ): IncomingEvent | null {
   // Only handle button interactions
   if (!interaction.isButton()) {
-    return null;
+    return null
   }
 
-  const buttonInteraction = interaction as ButtonInteraction;
+  const buttonInteraction = interaction as ButtonInteraction
 
   return {
     channel: "discord",
@@ -42,7 +42,7 @@ export function mapDiscordInteractionToEvent(
     externalChatId: buttonInteraction.channel?.id || undefined,
     text: buttonInteraction.customId,
     raw: interaction,
-  };
+  }
 }
 
 export function mapDiscordReactionToEvent(
@@ -51,10 +51,10 @@ export function mapDiscordReactionToEvent(
 ): IncomingEvent | null {
   // Skip if message is from a bot
   if (reaction.message.author?.bot) {
-    return null;
+    return null
   }
 
-  const emoji = reaction.emoji.name || reaction.emoji.toString();
+  const emoji = reaction.emoji.name || reaction.emoji.toString()
 
   return {
     channel: "discord",
@@ -64,7 +64,7 @@ export function mapDiscordReactionToEvent(
     messageId: reaction.message.id,
     reaction: emoji,
     raw: reaction,
-  };
+  }
 }
 
 export function mapDiscordJoinToEvent(member: GuildMember): IncomingEvent {
@@ -75,6 +75,5 @@ export function mapDiscordJoinToEvent(member: GuildMember): IncomingEvent {
     externalChatId: member.guild.id,
     joinedUserId: member.user.id,
     raw: member,
-  };
+  }
 }
-

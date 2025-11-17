@@ -1,18 +1,18 @@
-import type { ChannelName } from "../types.js";
+import type { ChannelName } from "core/types"
 
 export interface ButtonComponent {
-  id: string;
-  label: string;
-  style?: "primary" | "secondary" | "success" | "danger" | "link";
-  url?: string; // For link buttons
+  id: string
+  label: string
+  style?: "primary" | "secondary" | "success" | "danger" | "link"
+  url?: string // For link buttons
 }
 
 export interface ChannelButtonCapabilities {
-  maxButtonsPerRow: number;
-  maxButtonIdLength: number;
-  maxLabelLength: number;
-  supportsStyles: boolean;
-  supportsUrls: boolean;
+  maxButtonsPerRow: number
+  maxButtonIdLength: number
+  maxLabelLength: number
+  supportsStyles: boolean
+  supportsUrls: boolean
 }
 
 export const TELEGRAM_BUTTON_CAPABILITIES: ChannelButtonCapabilities = {
@@ -21,7 +21,7 @@ export const TELEGRAM_BUTTON_CAPABILITIES: ChannelButtonCapabilities = {
   maxLabelLength: 64,
   supportsStyles: false,
   supportsUrls: true, // But separate from callback buttons
-};
+}
 
 export const DISCORD_BUTTON_CAPABILITIES: ChannelButtonCapabilities = {
   maxButtonsPerRow: 5,
@@ -29,7 +29,7 @@ export const DISCORD_BUTTON_CAPABILITIES: ChannelButtonCapabilities = {
   maxLabelLength: 80,
   supportsStyles: true,
   supportsUrls: true,
-};
+}
 
 export const BUTTON_CAPABILITIES: Record<
   ChannelName,
@@ -37,5 +37,4 @@ export const BUTTON_CAPABILITIES: Record<
 > = {
   telegram: TELEGRAM_BUTTON_CAPABILITIES,
   discord: DISCORD_BUTTON_CAPABILITIES,
-};
-
+}

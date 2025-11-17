@@ -1,69 +1,64 @@
-export type ChannelName = "telegram" | "discord";
+export type ChannelName = "telegram" | "discord"
 
-export type IncomingEventType =
-  | "message"
-  | "button_click"
-  | "reaction"
-  | "join";
+export type IncomingEventType = "message" | "button_click" | "reaction" | "join"
 
 export interface IncomingEvent {
-  channel: ChannelName;
-  type: IncomingEventType;
-  externalUserId: string;
-  externalChatId?: string;
-  text?: string;
-  messageId?: string; // ID of the message being reacted to (for reaction events)
-  reaction?: string; // The reaction emoji/text (for reaction events)
-  joinedUserId?: string; // User who joined (for join events, may differ from externalUserId)
-  raw: unknown;
+  channel: ChannelName
+  type: IncomingEventType
+  externalUserId: string
+  externalChatId?: string
+  text?: string
+  messageId?: string // ID of the message being reacted to (for reaction events)
+  reaction?: string // The reaction emoji/text (for reaction events)
+  joinedUserId?: string // User who joined (for join events, may differ from externalUserId)
+  raw: unknown
 }
 
 export type OutgoingMessage =
   | { type: "text"; text: string }
   | { type: "image"; url: string; caption?: string }
   | {
-      type: "buttons";
-      text: string;
-      buttons: { id: string; label: string }[];
-    };
+      type: "buttons"
+      text: string
+      buttons: { id: string; label: string }[]
+    }
 
-export type CoreEventHandler = (event: IncomingEvent) => Promise<void>;
+export type CoreEventHandler = (event: IncomingEvent) => Promise<void>
 
 export interface BotAdapter {
-  name: ChannelName;
-  attachCore(handler: CoreEventHandler): void;
-  start?(): Promise<void>;
+  name: ChannelName
+  attachCore(handler: CoreEventHandler): void
+  start?(): Promise<void>
   send(
     msg: OutgoingMessage,
     meta: {
-      channel: ChannelName;
-      externalUserId: string;
-      externalChatId?: string;
+      channel: ChannelName
+      externalUserId: string
+      externalChatId?: string
     }
-  ): Promise<void>;
+  ): Promise<void>
 }
 
 export interface HttpWebhook {
-  path: string;
-  handler: (body: any, headers: Record<string, string>) => Promise<void>;
+  path: string
+  handler: (body: any, headers: Record<string, string>) => Promise<void>
 }
 
 export interface TelegramAdapter extends BotAdapter {
-  kind: "http-webhook";
-  webhook: HttpWebhook;
+  kind: "http-webhook"
+  webhook: HttpWebhook
 }
 
 export type TelegramConfig = {
-  botToken: string;
-  webhookPath?: string;
-};
+  botToken: string
+  webhookPath?: string
+}
 
 export type DiscordConfig = {
-  token: string;
-};
+  token: string
+}
 
 export type BotConfig = {
-  telegram?: TelegramConfig;
-  discord?: DiscordConfig;
-};
-
+  telegram?: TelegramConfig
+  discord?: DiscordConfig
+}

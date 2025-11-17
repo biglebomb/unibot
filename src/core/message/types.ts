@@ -1,8 +1,7 @@
-import type { Content } from "../content/types.js";
-import type { MessageComponent } from "../components/types.js";
+import type { Content } from "core/content/types"
+import type { MessageComponent } from "core/components/types"
 
 export interface Message {
-  content?: Content; // Optional (some channels allow components without content)
-  components?: MessageComponent[]; // Array of components (buttons, selects, etc.)
+  content?: Content // Optional (some channels allow components without content)
+  components?: MessageComponent[] // Array of components (buttons, selects, etc.)
 }
-

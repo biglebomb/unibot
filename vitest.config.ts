@@ -1,4 +1,5 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vitest/config"
+import path from "path"
 
 export default defineConfig({
   test: {
@@ -10,5 +11,10 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
     },
   },
-});
+  resolve: {
+    alias: {
+      core: path.resolve(__dirname, "./src/core"),
+    },
+  },
+})
 

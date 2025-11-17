@@ -1,22 +1,20 @@
-import type { OutgoingMessage } from "../types.js";
-import type { Message } from "./types.js";
-import type { TextContent, ImageContent } from "../content/types.js";
-import type { ButtonComponent } from "../components/types.js";
+import type { OutgoingMessage } from "core/types"
+import type { Message } from "./types"
+import type { TextContent, ImageContent } from "core/content/types"
+import type { ButtonComponent } from "core/components/types"
 
 /**
  * Converts legacy OutgoingMessage to new Message format
  * @deprecated This is for backward compatibility during migration
  */
-export function convertOutgoingMessageToMessage(
-  msg: OutgoingMessage
-): Message {
+export function convertOutgoingMessageToMessage(msg: OutgoingMessage): Message {
   if (msg.type === "text") {
     return {
       content: {
         type: "text",
         text: msg.text,
       } as TextContent,
-    };
+    }
   }
 
   if (msg.type === "image") {
@@ -26,14 +24,14 @@ export function convertOutgoingMessageToMessage(
         url: msg.url,
         caption: msg.caption,
       } as ImageContent,
-    };
+    }
   }
 
   if (msg.type === "buttons") {
     const buttons: ButtonComponent[] = msg.buttons.map((btn) => ({
       id: btn.id,
       label: btn.label,
-    }));
+    }))
 
     return {
       content: msg.text
@@ -43,9 +41,8 @@ export function convertOutgoingMessageToMessage(
           }
         : undefined,
       components: buttons,
-    };
+    }
   }
 
-  throw new Error(`Unknown message type: ${(msg as any).type}`);
+  throw new Error(`Unknown message type: ${(msg as any).type}`)
 }
-
