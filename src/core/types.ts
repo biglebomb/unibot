@@ -12,6 +12,9 @@ export interface IncomingEvent {
   externalUserId: string;
   externalChatId?: string;
   text?: string;
+  messageId?: string; // ID of the message being reacted to (for reaction events)
+  reaction?: string; // The reaction emoji/text (for reaction events)
+  joinedUserId?: string; // User who joined (for join events, may differ from externalUserId)
   raw: unknown;
 }
 

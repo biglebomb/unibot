@@ -64,5 +64,58 @@ describe("Router", () => {
     expect(handler1).toHaveBeenCalledOnce();
     expect(handler2).toHaveBeenCalledOnce();
   });
+
+  it("should handle reaction events", async () => {
+    const router = new Router();
+    const handler = vi.fn().mockResolvedValue(undefined);
+
+    router.on("reaction", handler);
+
+    const event: IncomingEvent = {
+      channel: "telegram",
+      type: "reaction",
+      externalUserId: "user123",
+      externalChatId: "chat456",
+      messageId: "msg789",
+      reaction: "👍",
+      raw: {},
+    };
+
+    const adapter: BotAdapter = {
+      name: "telegram",
+      attachCore: vi.fn(),
+      send: vi.fn(),
+    };
+
+    await router.handle(event, adapter);
+
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("should handle join events", async () => {
+    const router = new Router();
+    const handler = vi.fn().mockResolvedValue(undefined);
+
+    router.on("join", handler);
+
+    const event: IncomingEvent = {
+      channel: "discord",
+      type: "join",
+      externalUserId: "user123",
+      externalChatId: "guild456",
+      joinedUserId: "user123",
+      raw: {},
+    };
+
+    const adapter: BotAdapter = {
+      name: "discord",
+      attachCore: vi.fn(),
+      send: vi.fn(),
+    };
+
+    await router.handle(event, adapter);
+
+    expect(handler).toHaveBeenCalledOnce();
+  });
 });
 

@@ -114,6 +114,53 @@ describe("Telegram Adapter", () => {
       expect(event?.text).toBe("button_clicked");
     });
 
+    it("should map message_reaction to reaction event", () => {
+      const update = {
+        message_reaction: {
+          user: { id: 123 },
+          chat: { id: 456 },
+          message_id: 789,
+          new_reaction: [
+            {
+              emoji: {
+                name: "👍",
+                emoji: "👍",
+              },
+            },
+          ],
+        },
+      };
+
+      const event = mapTelegramUpdateToEvent(update);
+
+      expect(event).not.toBeNull();
+      expect(event?.channel).toBe("telegram");
+      expect(event?.type).toBe("reaction");
+      expect(event?.externalUserId).toBe("123");
+      expect(event?.externalChatId).toBe("456");
+      expect(event?.messageId).toBe("789");
+      expect(event?.reaction).toBe("👍");
+    });
+
+    it("should map new_chat_members to join event", () => {
+      const update = {
+        message: {
+          from: { id: 999 },
+          chat: { id: 456 },
+          new_chat_members: [{ id: 123, username: "newuser" }],
+        },
+      };
+
+      const event = mapTelegramUpdateToEvent(update);
+
+      expect(event).not.toBeNull();
+      expect(event?.channel).toBe("telegram");
+      expect(event?.type).toBe("join");
+      expect(event?.externalUserId).toBe("999");
+      expect(event?.externalChatId).toBe("456");
+      expect(event?.joinedUserId).toBe("123");
+    });
+
     it("should return null for unsupported update types", () => {
       const update = {
         edited_message: {
@@ -150,6 +197,70 @@ describe("Telegram Adapter", () => {
       expect(global.fetch).toHaveBeenCalledOnce();
       const callArgs = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
       expect(callArgs[0]).toContain("sendMessage");
+    });
+
+    it("should send buttons message with inline keyboard via Telegram API", async () => {
+      const adapter = createTelegramAdapter({
+        botToken: "test-token",
+      });
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        text: vi.fn().mockResolvedValue("{}"),
+      });
+
+      await adapter.send(
+        {
+          type: "buttons",
+          text: "Choose an option",
+          buttons: [
+            { id: "btn1", label: "Option 1" },
+            { id: "btn2", label: "Option 2" },
+            { id: "btn3", label: "Option 3" },
+          ],
+        },
+        {
+          channel: "telegram",
+          externalUserId: "123",
+          externalChatId: "456",
+        }
+      );
+
+      expect(global.fetch).toHaveBeenCalledOnce();
+      const callArgs = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(callArgs[0]).toContain("sendMessage");
+      
+      const body = JSON.parse(callArgs[1].body);
+      expect(body.text).toBe("Choose an option");
+      expect(body.reply_markup).toBeDefined();
+      expect(body.reply_markup.inline_keyboard).toBeDefined();
+      expect(body.reply_markup.inline_keyboard.length).toBeGreaterThan(0);
+      expect(body.reply_markup.inline_keyboard[0][0].callback_data).toBe("btn1");
+      expect(body.reply_markup.inline_keyboard[0][0].text).toBe("Option 1");
+    });
+
+    it("should handle button callback_query events", async () => {
+      const adapter = createTelegramAdapter({
+        botToken: "test-token",
+      });
+
+      const handler: CoreEventHandler = vi.fn().mockResolvedValue(undefined);
+      adapter.attachCore(handler);
+
+      const update = {
+        callback_query: {
+          from: { id: 123 },
+          message: { chat: { id: 456 } },
+          data: "button_clicked",
+        },
+      };
+
+      await adapter.webhook.handler(update, {});
+
+      expect(handler).toHaveBeenCalledOnce();
+      const event = (handler as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(event.type).toBe("button_click");
+      expect(event.text).toBe("button_clicked");
     });
   });
 });

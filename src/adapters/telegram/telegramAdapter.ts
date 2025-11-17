@@ -5,6 +5,8 @@ import type {
   OutgoingMessage,
 } from "../../core/types.js";
 import { mapTelegramUpdateToEvent } from "./mapping.js";
+import { TelegramMessageRenderer } from "./renderer.js";
+import { convertOutgoingMessageToMessage } from "../../core/message/converter.js";
 
 const TELEGRAM_API_BASE = "https://api.telegram.org/bot";
 
@@ -13,6 +15,7 @@ export function createTelegramAdapter(
 ): TelegramAdapter {
   let coreHandler: CoreEventHandler | undefined;
   const webhookPath = config.webhookPath || "/webhook/telegram";
+  const renderer = new TelegramMessageRenderer();
 
   const adapter: TelegramAdapter = {
     name: "telegram",
@@ -22,7 +25,7 @@ export function createTelegramAdapter(
     },
     webhook: {
       path: webhookPath,
-      handler: async (body: any, headers: Record<string, string>) => {
+      handler: async (body: any, _headers: Record<string, string>) => {
         if (!coreHandler) {
           throw new Error("Core handler not attached to Telegram adapter");
         }
@@ -42,21 +45,30 @@ export function createTelegramAdapter(
       }
     ): Promise<void> {
       const chatId = meta.externalChatId || meta.externalUserId;
-
-      if (msg.type === "text") {
-        await sendTelegramMessage(config.botToken, chatId, msg.text);
-      } else if (msg.type === "image") {
+      
+      // Convert legacy OutgoingMessage to Message format
+      const message = convertOutgoingMessageToMessage(msg);
+      
+      // Render message using renderer
+      const rendered = renderer.render(message);
+      
+      // Determine which Telegram API endpoint to use
+      if (rendered.photo) {
+        // Image with optional caption
         await sendTelegramPhoto(
           config.botToken,
           chatId,
-          msg.url,
-          msg.caption
+          rendered.photo,
+          rendered.caption
         );
-      } else if (msg.type === "buttons") {
-        // TODO: Implement inline keyboard buttons in v1
-        // For now, send text and buttons as separate messages
-        await sendTelegramMessage(config.botToken, chatId, msg.text);
-        // Note: Inline keyboard implementation requires additional API call
+      } else {
+        // Text message with optional buttons
+        await sendTelegramMessage(
+          config.botToken,
+          chatId,
+          rendered.text || "",
+          rendered.reply_markup
+        );
       }
     },
   };
@@ -67,18 +79,29 @@ export function createTelegramAdapter(
 async function sendTelegramMessage(
   botToken: string,
   chatId: string,
-  text: string
+  text: string,
+  replyMarkup?: { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> }
 ): Promise<void> {
   const url = `${TELEGRAM_API_BASE}${botToken}/sendMessage`;
+  const body: {
+    chat_id: string;
+    text: string;
+    reply_markup?: { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> };
+  } = {
+    chat_id: chatId,
+    text: text,
+  };
+  
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
+  
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: text,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -111,4 +134,5 @@ async function sendTelegramPhoto(
     throw new Error(`Telegram API error: ${error}`);
   }
 }
+
 
